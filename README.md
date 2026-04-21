@@ -17,7 +17,7 @@ Web App full-stack per la gestione di eventi e acquisto di biglietti per festiva
 ## Visualizzare il sito web
 link: 
 
-## Come eseguire
+## Come eseguire sulla propria macchina
 1. Clonare il repository
 2. Installare le dipendenze (requirements.txt)
 3. Avviare il server Flask (python app.py -> flask run)
