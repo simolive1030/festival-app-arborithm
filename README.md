@@ -1,6 +1,9 @@
 # Festival Ticketing Web Application - Arborithm
 Web App full-stack per la gestione di eventi e acquisto di biglietti per festival musicale.
 
+## Visualizzare il sito web
+Live demo: https://festival-app-arborithm.onrender.com
+
 ## Tecnologie
 - Python (flask)
 - SQL
@@ -13,9 +16,6 @@ Web App full-stack per la gestione di eventi e acquisto di biglietti per festiva
 - Acquisto tipologie di biglietti per partecipanti
 - Filtri di ricerca di eventi
 - Info eventi e info festival
-
-## Visualizzare il sito web
-link: 
 
 ## Come eseguire sulla propria macchina
 1. Clonare il repository
