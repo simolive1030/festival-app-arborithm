@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ evento.artista }} – Arborithm{% endblock %}
+
+{% block content %}
+<!-- Visualizzazione dettagli evento -->
+<div class="container py-5">
+  <div class="card bg-dark text-light p-4 shadow">
+    <div class="card-body">
+      <h2 class="card-title nome-artista mb-3">{{ evento.artista }}</h2>
+
+      <p class="mb-2"><strong>Giorno:</strong> {{ evento.giorno.capitalize() }}</p>
+      <p class="mb-2"><strong>Orario:</strong> {{ evento.orario_inizio[11:16] }}</p>
+      <p class="mb-2"><strong>Durata:</strong> {{ evento.durata }} minuti</p>
+      <p class="mb-2"><strong>Palco:</strong> Palco {{ evento.palco }}</p>
+      <p class="mb-2"><strong>Genere:</strong> {{ evento.genere }}</p>
+
+      <hr class="border-secondary">
+
+      <h5 class="mt-4 text-light">Descrizione</h5>
+      <p class="text-light">{{ evento.descrizione }}</p>
+
+      {% if evento.immagini and evento.immagini|length > 0 %}
+      <hr class="border-secondary">
+      <h5 class="mt-4 text-light">Galleria</h5>
+      <div class="d-flex flex-wrap gap-3 mt-3">
+      {% for img in evento.immagini %}
+          <div class="border border-light rounded p-1" style="width: 150px; height: 150px; overflow: hidden; cursor: pointer;" 
+              data-bs-toggle="modal" data-bs-target="#lightboxModal" data-img="{{ url_for('static', filename=img.file_path) }}">
+          <img src="{{ url_for('static', filename=img.file_path) }}"
+              alt="Immagine evento"
+              style="width: 100%; height: 100%; object-fit: cover;"
+              class="rounded">
+          </div>
+      {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Pulsante per tornare indietro -->
+  <div class="text-center mt-4">
+    {% if session['ruolo'] == 'organizzatore' %}
+      <a href="{{ url_for('dashboard_organizzatore') }}" class="btn btn_fluo btn-outline-success mt-3">
+        Torna all'Area di Lavoro
+      </a>
+    {% elif session['ruolo'] == 'partecipante' %}
+      <a href="{{ url_for('participant_tickets') }}" class="btn btn_fluo btn-outline-success mt-3">
+        Torna alla tua Pagina Personale
+      </a>
+    {% else %}
+      <a href="{{ url_for('index') }}" class="btn btn_fluo btn-outline-light mt-3">
+        Torna alla Home
+      </a>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Modal per il lightbox delle immagini -->
+<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content bg-dark">
+      <div class="modal-body p-0">
+        <img src="" id="lightboxImg" class="w-100" style="object-fit: contain; max-height: 90vh;">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Funzione per il lightbox delle immagini
+  const lightboxModal = document.getElementById('lightboxModal');
+  lightboxModal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const imgSrc = trigger.getAttribute('data-img');
+    const modalImg = document.getElementById('lightboxImg');
+    modalImg.src = imgSrc;
+  });
+</script>
+{% endblock %}

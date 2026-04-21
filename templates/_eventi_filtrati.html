@@ -1,0 +1,92 @@
+
+<!-- Titolo della sezione -->
+<section id="lineup">
+  <div class="container">
+    <h5 class="cyber-title2 mb-4">Eventi in Programma</h5>
+
+    <!-- Filtri -->
+    <form method="GET" class="mb-4">
+    <div class="row g-2 align-items-end">
+    
+        <!-- Giorno -->
+        <div class="col-md-3">
+        <label for="filtro-giorno" class="form-label">Giorno</label>
+        <select name="giorno" id="filtro-giorno" class="form-select">
+            <option value="">Tutti i giorni</option>
+            {% for giorno in ["venerdi", "sabato", "domenica"] %}
+            <option value="{{ giorno }}" {% if request.args.get('giorno') == giorno %}selected{% endif %}>
+                {{ giorno.capitalize() }}
+            </option>
+            {% endfor %}
+        </select>
+        </div>
+
+        <!-- Palco -->
+        <div class="col-md-3">
+        <label for="filtro-palco" class="form-label">Palco</label>
+        <select name="palco" id="filtro-palco" class="form-select">
+            <option value="">Tutti i palchi</option>
+            {% for palco in ["A", "B", "C"] %}
+            <option value="{{ palco }}" {% if request.args.get('palco') == palco %}selected{% endif %}>Palco {{ palco }}</option>
+            {% endfor %}
+        </select>
+        </div>
+
+        <!-- Genere -->
+        <div class="col-md-3">
+        <label for="filtro-genere" class="form-label">Genere</label>
+        <select name="genere" id="filtro-genere" class="form-select">
+            <option value="">Tutti i generi</option>
+            {% for g in generi %}
+            <option value="{{ g }}" {% if request.args.get('genere') == g %}selected{% endif %}>{{ g }}</option>
+            {% endfor %}
+        </select>
+        </div>
+
+        <!-- Pulsanti Filtra e Reset -->
+        <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn_fluo btn-outline-success flex-fill">Filtra</button>
+        <a href="{{ request.path }}" class="btn btn-outline-light flex-fill">Reset</a>
+        </div>
+    </div>
+    </form>
+
+    <!-- Blocco eventi -->
+    <div class="row gy-4">
+      {% for evento in eventi_pubblici %}
+        <div class="col-12">
+          <a href="{{ url_for('dettaglio_evento', id=evento['id']) }}" class="text-decoration-none">
+            <div class="card event-card p-4">
+              <div class="d-flex flex-column flex-md-row align-items-start">
+                <!-- IMMAGINE -->
+                <div class="event-img-container me-md-4 mb-3 mb-md-0">
+                  {% if evento["immagine"] %}
+                    <img src="{{ url_for('static', filename=evento['immagine']) }}" class="event-img">
+                  {% else %}
+                    <img src="{{ url_for('static', filename='default.jpg') }}" class="event-img">
+                  {% endif %}
+                </div>
+                <!-- TESTO -->
+                <div>
+                  <h4 class="evento-artista mb-1">{{ evento['artista'] }}</h4>
+                  <p class="mb-1">
+                    <strong>{{ evento['giorno'].capitalize() }}</strong> – 
+                    {{ evento['orario_inizio'][11:16] }} – 
+                    Palco {{ evento['palco'] }}
+                  </p>
+                  <p class="mb-2"><strong>Durata:</strong> {{ evento['durata'] }} minuti</p>
+                  <p class="mb-0">{{ evento['descrizione'] }}</p>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% else %}
+        <div class="col-12 text-center py-5">
+          <h5 class="no-result">Nessun risultato trovato</h5>
+          <p class="no-result">Prova a modificare i filtri.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

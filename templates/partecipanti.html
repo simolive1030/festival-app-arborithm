@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Biglietti – Arborithm{% endblock %}
+
+{% block content %}
+<!-- Hero Sezione Biglietti -->
+<section class="hero position-relative text-white" id="bigliettiHero">
+  <!-- Overlay oscurante -->
+  <div class="obscure position-absolute top-0 start-0 w-100 h-100"></div>
+
+  <div class="container position-relative d-flex flex-column justify-content-center align-items-start" style="z-index: 2; height: 100%;">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-4 w-100">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Sezione gestione biglietti -->
+    <h2 class="mb-4 titoloPaginaPersonale">Sezione Biglietti</h2>
+
+    <div class="row w-100">
+
+    <!-- MOSTRA BIGLIETTI -->
+    <div class="col-md-6 mb-4">
+      {% if tickets %}
+        <div class="ticket-info-box bg-dark bg-opacity-75 p-4 rounded h-100">
+          <strong>I tuoi biglietti:</strong><br><br>
+
+          {% for t in tickets %}
+            <div class="mb-2">
+              {% if t['tipo'] == 'giornaliero' %}
+                Giornaliero: <strong>{{ t['giorno_inizio'].capitalize() }}</strong>
+              {% elif t['tipo'] == 'due_giorni' %}
+                Pass 2 Giorni (<strong>{{ t['giorno_inizio'].capitalize() }}–{{ t['giorno_fine'].capitalize() }}</strong>)
+              {% else %}
+                Full Pass (3 giorni)
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ticket-info-box bg-dark bg-opacity-75 p-4 rounded h-100">
+          <em>Nessun biglietto acquistato.</em>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- FORM SEMPRE VISIBILE -->
+    <div class="col-md-6 mb-4">
+      <div class="card p-4 bg-dark bg-opacity-75 text-light h-100">
+        <h5>Acquista il tuo Biglietto</h5>
+
+        <form method="POST" action="{{ url_for('participant_tickets') }}">
+
+        <!-- Tipo -->
+        <div class="mb-3">
+          <label class="form-label">Tipo di Biglietto</label>
+          <select name="tipo" id="tipoSelect" class="form-select form-select-success" required>
+            <option value="" disabled selected>Seleziona tipo</option>
+
+            <option value="giornaliero" {% if disable_giornaliero %}disabled{% endif %}>
+              Biglietto Giornaliero
+            </option>
+
+            <option value="due_giorni" {% if disable_due_giorni %}disabled{% endif %}>
+              Pass 2 Giorni
+            </option>
+
+            <option value="full" {% if disable_full %}disabled{% endif %}>
+              Full Pass (3 giorni)
+            </option>
+          </select>
+        </div>
+
+        <!-- Giorno -->
+        <div class="mb-3" id="giornoWrapper" style="display:none;">
+          <label class="form-label" id="giornoLabel">Seleziona Giorno</label>
+
+          <select name="giorno_inizio" id="giornoSelect" class="form-select form-select-success">
+            <option value="" disabled selected>Seleziona giorno</option>
+
+            {% for giorno in ['venerdi', 'sabato', 'domenica'] %}
+              {% set posti_rimanenti = 200 - posti[giorno] %}
+
+              <option value="{{ giorno }}"
+                {% if posti[giorno] >= 200 or giorno in giorni_coperti %}disabled{% endif %}>
+
+                {{ giorno.capitalize() }}
+
+                {% if giorno in giorni_coperti %}
+                  (già acquistato)
+                {% else %}
+                  ({{ posti_rimanenti }} posti rimanenti)
+                {% endif %}
+
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Acquista</button>
+      </form>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- Separatore Glitch -->
+<div class="glitch-separator my-5 px-3">
+  <div class="glitch-line" style="width: 100%;"></div>
+  <div class="glitch-line" style="width: 90%; margin-left: 5%;"></div>
+  <div class="glitch-line" style="width: 95%; margin-left: 2.5%;"></div>
+  <div class="glitch-line" style="width: 85%; margin-left: 7.5%;"></div>
+</div>
+
+
+<div class="container pb-5">
+ <!-- Sezione Eventi -->
+{% include "_eventi_filtrati.html" %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Gestione del cambio tipo di biglietto
+  document.addEventListener("DOMContentLoaded", function() {
+    const tipoSelect = document.getElementById("tipoSelect");
+    const giornoWrapper = document.getElementById("giornoWrapper");
+    const giornataSelect = document.getElementById("giornoSelect");
+    const giornoLabel = document.getElementById("giornoLabel");
+
+    tipoSelect.addEventListener("change", function() {
+      const tipo = this.value;
+      if (tipo === "giornaliero") {
+        giornoLabel.textContent = "Seleziona Giorno";
+        giornataSelect.removeAttribute("disabled");
+        giornoWrapper.style.display = "block";
+
+      } else if (tipo === "due_giorni") {
+        giornoLabel.textContent = "Seleziona Giorno di Inizio (venerdì o sabato)";
+        giornataSelect.removeAttribute("disabled");
+        giornoWrapper.style.display = "block";
+
+      } else if (tipo === "full") {
+        giornoWrapper.style.display = "none";
+        giornataSelect.setAttribute("disabled", "true");
+      }
+
+      Array.from(giornataSelect.options).forEach(option => {
+        if (tipo === "due_giorni" && option.value === "domenica") {
+          option.style.display = "none";
+        } else {
+          option.style.display = "block";
+        }
+      });
+
+      giornataSelect.value = "";
+    });
+  });
+</script>
+
+<script>
+  // Chiusura automatica degli alert dopo 3 secondi
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function () {
+      document.querySelectorAll('.alert-dismissible').forEach(function (alertEl) {
+        let alert = bootstrap.Alert.getOrCreateInstance(alertEl);
+        alert.close();
+      });
+    }, 3000);
+  });
+</script>
+
+<script>
+  // Impostazione sfondo casuale per l' hero
+  document.addEventListener("DOMContentLoaded", function () {
+    const hero = document.getElementById("bigliettiHero");
+    const sfondi = [
+      "{{ url_for('static', filename='palco_a.jpg') }}",
+      "{{ url_for('static', filename='palco_b.jpg') }}",
+      "{{ url_for('static', filename='palco_c.jpg') }}"
+    ];
+    const sfondoCasuale = sfondi[Math.floor(Math.random() * sfondi.length)];
+    hero.style.backgroundImage = `url('${sfondoCasuale}')`;
+    hero.style.backgroundSize = "cover";
+    hero.style.backgroundPosition = "center";
+  });
+</script>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Modale Profilo Partecipante -->
+<div class="modal fade" id="profiloModal" tabindex="-1" aria-labelledby="profiloModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="profiloModalLabel">Il tuo Profilo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Email:</strong> {{ session['email'] }}</p>
+
+        {% if tickets %}
+          <hr>
+          <p><strong>I tuoi biglietti:</strong></p>
+
+          {% for t in tickets %}
+            <div class="mb-2 p-2 border rounded">
+
+              <p class="mb-1">
+                <strong>Tipo:</strong>
+                {% if t['tipo'] == 'giornaliero' %}
+                  Biglietto Giornaliero
+                {% elif t['tipo'] == 'due_giorni' %}
+                  Pass di Due Giorni
+                {% else %}
+                  Full Pass (3 Giorni)
+                {% endif %}
+              </p>
+
+              <p class="mb-0">
+                <strong>Giorni:</strong>
+                {% if t['tipo'] == 'giornaliero' %}
+                  {{ t['giorno_inizio'].capitalize() }}
+                {% elif t['tipo'] == 'due_giorni' %}
+                  {{ t['giorno_inizio'].capitalize() }} – {{ t['giorno_fine'].capitalize() }}
+                {% else %}
+                  Tutti e 3 i giorni
+                {% endif %}
+              </p>
+
+            </div>
+          {% endfor %}
+
+        {% else %}
+          <p><em>Nessun biglietto acquistato.</em></p>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+

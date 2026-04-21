@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}Organizzatore – Arborithm{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show auto-dismiss" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Statistiche Vendita Biglietti -->
+    <h4 class="titolo_statistiche text-center mt-4 mb-4">Biglietti per Giorno</h4>
+
+    {% for giorno in ['venerdi', 'sabato', 'domenica'] %}
+    {% set venduti = posti[giorno] %}
+    {% set percentuale = (venduti / 200 * 100) | round(1) %}
+    <div class="mb-3">
+        <label class="form-label text-light">
+        {{ giorno.capitalize() }}: {{ venduti }}/200 biglietti 
+        <span class="badge text-dark ms-2">{{ percentuale }}%</span>
+        </label>
+        <div class="progress">
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentuale }}%;"></div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <h4 class="titolo_statistiche text-center mt-5 mb-4">Biglietti per Tipologia</h4>
+
+    {% set max_tipo = [tickets['giornaliero'], tickets['due_giorni'], tickets['full']] | max %}
+
+    {% set tipologie = [
+    ('giornaliero', 'Giornaliero', 'bg-info'),
+    ('due_giorni', 'Due Giorni', 'bg-warning'),
+    ('full', 'Full Pass', 'bg-primary')
+    ] %}
+
+    {% for key, label, colore in tipologie %}
+    {% set quantita = tickets[key] %}
+    {% set larghezza = (quantita / max_tipo * 100) | round(1) if max_tipo > 0 else 0 %}
+    <div class="mb-3">
+        <label class="form-label text-light">
+        {{ label }}: {{ quantita }} biglietti
+        </label>
+        <div class="progress">
+        <div class="progress-bar {{ colore }}"
+            role="progressbar"
+            style="width: {{ larghezza }}%; min-width: 5%;">
+            {# rimosso il testo interno #}
+        </div>
+        </div>
+    </div>
+    {% endfor %}
+
+  <hr class="my-5 border-top border-light">
+  <!-- Sezione modifica/aggiungi evento -->
+  <h2 class="mb-4 titoloPaginaPersonale">Gestione Eventi</h2>
+
+  <!-- Bottone per aprire il modale di creazione evento -->
+  <div class="text-center mb-4">
+    <button class="btn btn-lg btn-success" data-bs-toggle="modal" data-bs-target="#creaEventoModal">
+      + Crea Nuova Performance
+    </button>
+  </div>
+
+  <!-- Blocco Bozze -->
+    <div class="mt-5">
+    <h5>Le Tue Bozze</h5>
+    {% if bozze %}
+        <div class="row g-3">
+        {% for evento in bozze %}
+            <div class="col-md-6">
+            <div class="card p-3">
+                <h6>{{ evento['artista'] }}</h6>
+                <p><strong>Giorno:</strong> {{ evento['giorno'].capitalize() }}</p>
+                <p><strong>Orario:</strong> {{ evento['orario_inizio'][11:16] }}</p>
+                <p><strong>Durata:</strong> {{ evento['durata'] }} minuti</p>
+                <p><strong>Palco:</strong> Palco {{ evento['palco'] }}</p>
+                <p><strong>Descrizione:</strong> {{ evento['descrizione'] }}</p>
+
+                {% set immagini = evento['immagini'] if 'immagini' in evento else [] %}
+                {% if immagini %}
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    {% for img in immagini %}
+                    <img src="{{ url_for('static', filename=img.file_path) }}"
+                        class="img-thumbnail"
+                        style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <a href="{{ url_for('dashboard_organizzatore') }}?edit_id={{ evento['id'] }}" class="btn btn-outline-light btn-sm">
+                Modifica
+                </a>
+            </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted-success-emphasis">Nessuna bozza disponibile.</p>
+    {% endif %}
+    </div>
+
+    <hr class="my-5 border-top border-light">
+
+    <!-- Blocco Eventi Pubblicati -->
+    {% include "_eventi_filtrati.html" %}
+
+{% endblock %}
+
+{% block modals %}
+<!-- Modale Crea/Modifica Evento -->
+<div class="modal fade" id="creaEventoModal" tabindex="-1" aria-labelledby="creaEventoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content bg-dark text-light">
+      <form method="POST"
+            action="{% if bozza_to_edit %}{{ url_for('modifica_evento', id=bozza_to_edit.id) }}{% else %}{{ url_for('crea_evento') }}{% endif %}"
+            enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title" id="creaEventoModalLabel">
+            {% if bozza_to_edit %}Modifica Performance{% else %}Nuova Performance{% endif %}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Titolo -->
+          <div class="mb-3">
+            <label for="titoloEvento" class="form-label">Titolo (Artista o Gruppo)</label>
+            <input type="text" class="form-control" id="titoloEvento" name="titolo" required
+                   value="{{ bozza_to_edit.artista if bozza_to_edit else '' }}">
+          </div>
+
+          <!-- Descrizione -->
+          <div class="mb-3">
+            <label for="descrizioneEvento" class="form-label">Descrizione</label>
+            <textarea class="form-control" id="descrizioneEvento" name="descrizione" rows="3" required>{{ bozza_to_edit.descrizione if bozza_to_edit else '' }}</textarea>
+          </div>
+
+          <!-- Giorno / Orario -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="giornoEvento" class="form-label">Giorno</label>
+              <select class="form-select" id="giornoEvento" name="giorno" required>
+                <option value="" disabled {% if not bozza_to_edit %}selected{% endif %}>Seleziona Giorno</option>
+                {% for g in ['venerdi','sabato','domenica'] %}
+                <option value="{{ g }}" {% if bozza_to_edit and bozza_to_edit.giorno == g %}selected{% endif %}>{{ g.capitalize() }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="orarioEvento" class="form-label">Orario</label>
+              <input type="time" class="form-control" id="orarioEvento" name="orario" required
+                     value="{{ bozza_to_edit.orario_inizio[11:16] if bozza_to_edit else '' }}">
+            </div>
+          </div>
+
+          <!-- Durata -->
+          <div class="mb-3">
+            <label for="durataEvento" class="form-label">Durata (minuti)</label>
+            <input type="number" class="form-control" id="durataEvento" name="durata" min="1" required
+                   value="{{ bozza_to_edit.durata if bozza_to_edit else '' }}">
+          </div>
+
+          <!-- Palco -->
+          <div class="mb-3">
+            <label for="palcoEvento" class="form-label">Palco</label>
+            <select class="form-select" id="palcoEvento" name="palco" required>
+              <option value="" disabled {% if not bozza_to_edit %}selected{% endif %}>Seleziona Palco</option>
+              {% for p,label in [('A','Main Stage'),('B','Secondary Stage'),('C','Experimental Stage')] %}
+              <option value="{{ p }}" {% if bozza_to_edit and bozza_to_edit.palco == p %}selected{% endif %}>
+                Palco {{ p }} ({{ label }})
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Genere -->
+          <div class="mb-3">
+            <label for="genereEvento" class="form-label">Genere Musicale</label>
+            <input type="text" class="form-control" id="genereEvento" name="genere" required
+                   value="{{ bozza_to_edit.genere if bozza_to_edit else '' }}">
+          </div>
+
+          <!-- Immagini (solo in creazione) -->
+          {% if not bozza_to_edit %}
+          <div class="mb-3">
+            <label for="immaginiEvento" class="form-label">Immagini Promozionali</label>
+            <input type="file" class="form-control" id="immaginiEvento" name="immagini" accept="image/*" multiple>
+          </div>
+          {% endif %}
+
+          {% if bozza_to_edit %}
+            <!-- Sezione Immagini esistenti -->
+            <div class="mb-3">
+                <label class="form-label">Immagini Correnti</label>
+                <div class="d-flex flex-wrap gap-2">
+                {% for img in bozza_to_edit.immagini %}
+                    <div class="position-relative" style="width: 100px; height: 100px;">
+                    <img src="{{ url_for('static', filename=img.file_path) }}"
+                        class="img-thumbnail" style="width:100px;height:100px;object-fit:cover;">
+                    <!-- Checkbox per eliminare -->
+                    <input type="checkbox" class="d-none delete-checkbox" id="delete_img_{{ img.id }}" name="delete_image_{{ img.id }}">
+                    <label for="delete_img_{{ img.id }}" class="badge rounded-circle delete-label position-absolute top-0 end-0 m-1">
+                      ✕
+                    </label>
+                    </div>
+                {% endfor %}
+                </div>
+                <small class="form-text text-muted">
+                Seleziona le immagini da eliminare.
+                </small>
+            </div>
+            <!-- Sezione Nuovi upload -->
+            <div class="mb-3">
+                <label for="immaginiEvento" class="form-label">Aggiungi Nuove Immagini</label>
+                <input type="file" class="form-control" id="immaginiEvento" name="immagini" accept="image/*" multiple>
+            </div>
+            {% endif %}
+
+          <!-- Bozza -->
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="bozzaCheck" name="bozza"
+                   {% if bozza_to_edit and bozza_to_edit.pubblicata == 0 %}checked{% endif %}>
+            <label class="form-check-label" for="bozzaCheck">Salva come bozza</label>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer d-flex justify-content-between align-items-center">
+          {% if bozza_to_edit and bozza_to_edit.pubblicata == 0 %}
+          <button type="button" class="btn btn-danger" id="eliminaBozzaBtn">Elimina Bozza</button>
+          {% else %}
+          <div></div>
+          {% endif %}
+
+          <button type="submit" class="btn btn-success" id="submitButton">
+            {% if bozza_to_edit %}Aggiorna{% else %}Salva{% endif %}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modale Profilo Organizzatore -->
+<div class="modal fade" id="profiloOrganizzatoreModal" tabindex="-1" aria-labelledby="profiloOrganizzatoreModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="profiloOrganizzatoreModalLabel">Il tuo Profilo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Email:</strong> {{ session['email'] }}</p>
+      </div>
+      <div class="modal-footer">
+        <a href="{{ url_for('dashboard_organizzatore') }}" class="btn btn-success">Vai all'area di lavoro</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}  
+
+{% block scripts %}
+{% if bozza_to_edit %}
+
+<script>
+  // Script per mostrare il modale di modifica evento se esiste una bozza da modificare
+  document.addEventListener("DOMContentLoaded", function() {
+    var modal = new bootstrap.Modal(document.getElementById('creaEventoModal'));
+    modal.show();
+  });
+</script>
+{% endif %}
+
+<script>
+  // Script per chiudere automaticamente i messaggi di alert
+  setTimeout(function () {
+    document.querySelectorAll('.auto-dismiss').forEach(function (el) {
+      el.classList.remove('show');
+      el.classList.add('fade');
+      setTimeout(function () {
+        el.remove();
+      }, 500);
+    });
+  }, 4000);
+</script>
+
+<script>
+  // Script per aggiornare il testo del bottone in base allo stato della bozza
+  document.addEventListener("DOMContentLoaded", function () {
+    const bozzaCheckbox = document.getElementById("bozzaCheck");
+    const submitButton = document.getElementById("submitButton");
+
+    function aggiornaTestoBottone() {
+      const èModifica = {{ 'true' if bozza_to_edit else 'false' }};
+      if (èModifica) {
+        submitButton.textContent = bozzaCheckbox.checked ? "Salva Bozza" : "Pubblica";
+      }
+    }
+
+    if (bozzaCheckbox && submitButton) {
+      bozzaCheckbox.addEventListener("change", aggiornaTestoBottone);
+      aggiornaTestoBottone(); // inizializza all'apertura del modal
+    }
+  });
+</script>
+
+{% if bozza_to_edit and bozza_to_edit.pubblicata == 0 %}
+<script>
+  // Script per eliminare la bozza
+  document.addEventListener("DOMContentLoaded", function () {
+    const eliminaBtn = document.getElementById("eliminaBozzaBtn");
+    if (eliminaBtn) {
+      eliminaBtn.addEventListener("click", function () {
+        if (confirm("Sei sicuro di voler eliminare questa bozza?")) {
+          fetch("{{ url_for('elimina_bozza', id=bozza_to_edit.id) }}", {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            credentials: "same-origin"
+          }).then(response => {
+            if (response.redirected) {
+              window.location.href = response.url;
+            } else {
+              alert("Errore durante l'eliminazione.");
+            }
+          });
+        }
+      });
+    }
+  });
+</script>
+{% endif %}
+
+{% endblock %}
+

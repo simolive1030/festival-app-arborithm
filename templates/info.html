@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Info Festival - Arborithm{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4" id="info">
+  <!-- Intestazione e descrizione del festival -->
+  <div class="text-center mb-3">
+    <img src="{{ url_for('static', filename='logo.png') }}"
+     alt="Logo Arborithm"
+     class="img-fluid logo-mini">
+  </div>
+  <h1 class="cyber-title text-center mb-4">Benvenuti ad Arborithm</h1>
+  <p class="cyber-text text-center">
+    Algoritmo alboreo, è questo il significato del nome Arborithm!
+    Il primo festival dove natura e tecnologia si fondono in un ecosistema sonoro unico.  
+    Nel cuore di una foresta digitale, tre palchi tematici ospitano artisti da tutto il mondo per un'esperienza multisensoriale che va oltre il concetto di musica elettronica.
+  </p>
+
+  <div class="mt-5">
+    <!-- Palco A -->
+    <div class="mb-5">
+        <h3 class="cyber-subtitle text-center">Palco A – Main Stage</h3>
+        <div class="text-center">
+        <div 
+            class="d-inline-block rounded shadow my-3"
+            style="cursor: pointer; overflow: hidden; max-width: 100%;"
+            data-bs-toggle="modal" 
+            data-bs-target="#lightboxModal" 
+            data-img="{{ url_for('static', filename='palco_a.jpg') }}">
+            
+            <img 
+              src="{{ url_for('static', filename='palco_a.jpg') }}" 
+              class="img-fluid rounded palco-img"
+              alt="Palco A">
+          </div>
+        </div>
+        <p class="cyber-text text-center px-3">
+        Il cuore pulsante del festival. Una struttura colossale avvolta da liane al neon e alberi olografici.  
+        Qui si esibiscono gli headliner, tra visual spettacolari, laser e sound design da battaglia stellare.
+        </p>
+        <hr class="my-4 border-light">
+    </div>
+
+    <!-- Palco B -->
+    <div class="mb-5">
+        <h3 class="cyber-subtitle text-center">Palco B – Secondary Stage</h3>
+        <div class="text-center">
+        <div 
+            class="d-inline-block rounded shadow my-3"
+            style="cursor: pointer; overflow: hidden; max-width: 100%;"
+            data-bs-toggle="modal" 
+            data-bs-target="#lightboxModal" 
+            data-img="{{ url_for('static', filename='palco_b.jpg') }}">
+            
+            <img 
+              src="{{ url_for('static', filename='palco_b.jpg') }}" 
+              class="img-fluid rounded palco-img"
+              alt="Palco A">
+          </div>
+        </div>
+        <p class="cyber-text text-center px-3">
+        Più raccolto e immerso in un giardino cibernetico, questo palco ospita DJ set intimi e sperimentazioni deep techno.  
+        Un punto d'incontro tra energia tribale e dettagli bio-digitali.
+        </p>
+        <hr class="my-4 border-light">
+    </div>
+
+    <!-- Palco C -->
+    <div class="mb-5">
+        <h3 class="cyber-subtitle text-center">Palco C – Experimental Stage</h3>
+        <div class="text-center">
+        <div 
+            class="d-inline-block rounded shadow my-3"
+            style="cursor: pointer; overflow: hidden; max-width: 100%;"
+            data-bs-toggle="modal" 
+            data-bs-target="#lightboxModal" 
+            data-img="{{ url_for('static', filename='palco_c.jpg') }}">
+            
+            <img 
+              src="{{ url_for('static', filename='palco_c.jpg') }}" 
+              class="img-fluid rounded palco-img"
+              alt="Palco A">
+          </div>
+        </div>
+        <p class="cyber-text text-center px-3">
+        Qui la musica diventa arte generativa. Il palco è vivo, muta in base ai suoni, circondato da funghi reattivi e strutture neurali.  
+        Uno spazio per performance uniche e visionarie.
+        </p>
+    </div>
+  </div>
+</div>
+<!-- Sezione info festival -->
+<section id="info" class="py-5 bg-dark text-light">
+  <div class="container">
+    <h2 class="text-center">Info Festival</h2>
+    <p class="text-center">Dal 13 al 15 giugno 2025 - Area Expo di Neo-Milano-2</p>
+    <p class="text-center">Location sensazionale, musica incredibile, stand a tema, cibo futuristico e molto altro!</p>
+    <p class="text-center">*Questo è un festival fittizio, tutti gli eventi, palchi e location non esistono per davvero.*</p>
+    <p class="text-center">*Tutte le immagini presenti in questo sito sono state create con un'intelligenza artificiale generativa.*</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block modals %}
+<!-- Modal per il lightbox delle immagini -->
+<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content bg-dark">
+      <div class="modal-body p-0">
+        <img src="" id="lightboxImg" class="w-100" style="object-fit: contain; max-height: 90vh;">
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include "modals.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Funzione per il lightbox delle immagini
+  const lightboxModal = document.getElementById('lightboxModal');
+  lightboxModal.addEventListener('show.bs.modal', function (event) {
+    const trigger = event.relatedTarget;
+    const imgSrc = trigger.getAttribute('data-img');
+    const modalImg = document.getElementById('lightboxImg');
+    modalImg.src = imgSrc;
+  });
+</script>
+{% endblock %}

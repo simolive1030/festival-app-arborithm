@@ -1,0 +1,276 @@
+/* Cyberpunk Theme Stylesheet */
+/* General base Styles */
+body {
+  background-color: #0f1f1a;
+  color: #dfffe0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar {
+  background-color: #152a22;
+}
+
+
+.nav-tabs .nav-link {
+  color: #66ff99; 
+  background-color: transparent;
+  border: 1px solid #66ff99;
+  border-bottom: none;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #0f1f17;
+  color: #ccffcc;
+  border-color: #66ff99 #66ff99 #0f1f17;
+}
+
+.navbar-brand,
+.nav-link,
+.btn-login {
+  color: #dfffe0 !important;
+}
+
+
+/* form styles */
+.form-select-success {
+  background-color: #0f1f17;     
+  color: #66ff99;                
+  border: 1px solid #198754;     
+}
+
+.form-select-success:hover {
+  border-color: #28a745;
+}
+
+
+.form-select-success:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25); 
+  outline: none;
+}
+
+/* Hero home */
+.hero {
+  background: linear-gradient(rgba(15, 31, 26, 0.7), rgba(15, 31, 26, 0.8)), url('HomeForest.jpg') center/cover;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  color: #39ff14;
+}
+
+.btn-primary {
+  background-color: #39ff14;
+  color: #0f1f1a;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #27e113;
+  color: #fff;
+}
+
+.day-filter {
+  background-color: #1c2e28;
+}
+
+.day-filter button {
+  color: #dfffe0;
+  border-color: #39ff14;
+}
+
+/* Hero partecipanti */
+.bigliettiHero{
+  height: 70vh;
+  display: flex;
+  background-position: center;
+}
+.obscure{
+  background-color: rgba(0, 0, 0, 0.65); 
+  z-index: 1;
+}
+
+/* Separatore glitch */
+.glitch-separator {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.glitch-line {
+  height: 4px;
+  background: #39ff14;
+  box-shadow: 0 0 8px #39ff14;
+  animation: glitchMove 2s infinite ease-in-out alternate;
+}
+
+@keyframes glitchMove {
+  0% { transform: translateX(0); opacity: 1; }
+  25% { transform: translateX(-2px); opacity: 0.8; }
+  50% { transform: translateX(2px); opacity: 1; }
+  75% { transform: translateX(-1px); opacity: 0.9; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+
+/* Eventi */
+
+/* Titolo Eventi in Programma */
+.cyber-title2 {
+  color: #39ff14;
+  font-size: 2rem;
+}
+
+/* Nome artista */
+.evento-artista {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+/* Etichette filtro */
+form label.form-label {
+  color: #2ecc71;
+  font-weight: 500;
+}
+
+.event-card {
+  background-color: #1c2e28;
+  border: none;
+  color: #dfffe0;
+}
+
+footer {
+  background-color: #152a22;
+  color: #9bbfa0;
+}
+
+.ticket-info-box {
+  background-color: #1c3429;
+  color: #dfffe0;
+  padding: 1.5rem;
+  border-left: 5px solid #28a745;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 1rem;
+}
+
+.card{
+  background-color: #1c2e28;
+  color: #dfffe0;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Immagini eventi */
+.event-img-container {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+}
+
+.event-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  border-radius: 10px;
+}
+
+/* INFO EVENTO */
+.nome-artista {
+  color: #39FF14; 
+}
+
+/* RISULTATI NON TROVATI */
+.no-result {
+  color: #39FF14;
+  font-style: italic;
+}
+
+/* PAGINA INFO */
+.cyber-title {
+  color: #39ff14;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.cyber-subtitle {
+  color:#27e113; 
+  font-size: 1.4rem;
+  margin-top: 1rem;
+}
+
+
+.cyber-text {
+  color : #dfffe0; 
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.palco-img {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* PAGINE PERSONALI */
+.titoloPaginaPersonale {
+  color: #39ff14;
+}
+
+/* MODALI */
+.modal-title {
+  color: #39ff14;
+}
+
+/* STATISTICHE VENDITE */
+.badge{
+  background-color: #39ff14;
+  color: #0f1f1a;
+}
+
+.titolo_statistiche {
+  color: #39ff14;
+  font-size: 1.75 rem;
+  font-weight: bold;
+}
+
+/* Bottoni fluo */
+.btn_fluo{
+  border-color: #39ff14;
+  color:#39FF14;
+  background-color: transparent;
+}
+
+/* Logo-info */
+.logo-mini {
+  max-width: 50%;         
+  max-height: 200px;      
+  height: auto;
+}
+
+/* Eliminazione immagini bozze */
+.delete-label {
+  background-color: #6c757d; 
+  color: white;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+
+.delete-checkbox:checked + .delete-label {
+  background-color: #dc3545; 
+}
+
